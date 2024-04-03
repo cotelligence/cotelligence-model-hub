@@ -1,0 +1,13 @@
+# ide
+.idea/
+**/.DS_Store
+
+# sonarqube
+test-report.json
+coverage.out
+app
+.scannerwork
+
+# .env
+.env
+

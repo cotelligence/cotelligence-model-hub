@@ -1,0 +1,506 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Cog",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/shutdown": {
+      "post": {
+        "summary": "Start Shutdown",
+        "operationId": "start_shutdown_shutdown_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Start Shutdown Shutdown Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Root  Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health-check": {
+      "get": {
+        "summary": "Healthcheck",
+        "operationId": "healthcheck_health_check_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Healthcheck Health Check Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predictions": {
+      "post": {
+        "summary": "Predict",
+        "description": "Run a single prediction on the model",
+        "operationId": "predict_predictions_post",
+        "parameters": [
+          {
+            "required": false,
+            "schema": {
+              "title": "Prefer",
+              "type": "string"
+            },
+            "name": "prefer",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PredictionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predictions/{prediction_id}": {
+      "put": {
+        "summary": "Predict Idempotent",
+        "description": "Run a single prediction on the model (idempotent creation).",
+        "operationId": "predict_idempotent_predictions__prediction_id__put",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Prediction ID",
+              "type": "string"
+            },
+            "name": "prediction_id",
+            "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Prefer",
+              "type": "string"
+            },
+            "name": "prefer",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "Prediction Request",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PredictionRequest"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predictions/{prediction_id}/cancel": {
+      "post": {
+        "summary": "Cancel",
+        "description": "Cancel a running prediction",
+        "operationId": "cancel_predictions__prediction_id__cancel_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Prediction ID",
+              "type": "string"
+            },
+            "name": "prediction_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Cancel Predictions  Prediction Id  Cancel Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "title": "HTTPValidationError",
+        "type": "object",
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            }
+          }
+        }
+      },
+      "Input": {
+        "title": "Input",
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "title": "Prompt",
+            "type": "string",
+            "description": "Input prompt",
+            "default": "A small cactus with a happy face in the Sahara desert",
+            "x-order": 0
+          },
+          "negative_prompt": {
+            "title": "Negative Prompt",
+            "type": "string",
+            "description": "Negative prompt",
+            "x-order": 1
+          },
+          "style": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/style"
+              }
+            ],
+            "description": "Image style",
+            "default": "None",
+            "x-order": 2
+          },
+          "width": {
+            "title": "Width",
+            "type": "integer",
+            "description": "Width of output image",
+            "default": 1024,
+            "x-order": 3
+          },
+          "height": {
+            "title": "Height",
+            "type": "integer",
+            "description": "Height of output image",
+            "default": 1024,
+            "x-order": 4
+          },
+          "num_outputs": {
+            "title": "Num Outputs",
+            "maximum": 4,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Number of images to output.",
+            "default": 1,
+            "x-order": 5
+          },
+          "scheduler": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/scheduler"
+              }
+            ],
+            "description": "scheduler",
+            "default": "DPMSolverMultistep",
+            "x-order": 6
+          },
+          "num_inference_steps": {
+            "title": "Num Inference Steps",
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Number of denoising steps",
+            "default": 14,
+            "x-order": 7
+          },
+          "guidance_scale": {
+            "title": "Guidance Scale",
+            "maximum": 50,
+            "minimum": 1,
+            "type": "number",
+            "description": "Scale for classifier-free guidance",
+            "default": 4.5,
+            "x-order": 8
+          },
+          "seed": {
+            "title": "Seed",
+            "type": "integer",
+            "description": "Random seed. Leave blank to randomize the seed",
+            "x-order": 9
+          }
+        }
+      },
+      "Output": {
+        "title": "Output",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "PredictionRequest": {
+        "title": "PredictionRequest",
+        "type": "object",
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/Input"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "output_file_prefix": {
+            "title": "Output File Prefix",
+            "type": "string"
+          },
+          "webhook": {
+            "title": "Webhook",
+            "maxLength": 65536,
+            "minLength": 1,
+            "type": "string",
+            "format": "uri"
+          },
+          "webhook_events_filter": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WebhookEvent"
+            },
+            "default": [
+              "start",
+              "output",
+              "logs",
+              "completed"
+            ]
+          }
+        }
+      },
+      "PredictionResponse": {
+        "title": "PredictionResponse",
+        "type": "object",
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/Input"
+          },
+          "output": {
+            "$ref": "#/components/schemas/Output"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "started_at": {
+            "title": "Started At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "completed_at": {
+            "title": "Completed At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "logs": {
+            "title": "Logs",
+            "type": "string",
+            "default": ""
+          },
+          "error": {
+            "title": "Error",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "metrics": {
+            "title": "Metrics",
+            "type": "object"
+          }
+        }
+      },
+      "Status": {
+        "title": "Status",
+        "enum": [
+          "starting",
+          "processing",
+          "succeeded",
+          "canceled",
+          "failed"
+        ],
+        "type": "string",
+        "description": "An enumeration."
+      },
+      "ValidationError": {
+        "title": "ValidationError",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "loc": {
+            "title": "Location",
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        }
+      },
+      "WebhookEvent": {
+        "title": "WebhookEvent",
+        "enum": [
+          "start",
+          "output",
+          "logs",
+          "completed"
+        ],
+        "type": "string",
+        "description": "An enumeration."
+      },
+      "scheduler": {
+        "title": "scheduler",
+        "enum": [
+          "DDIM",
+          "DPMSolverMultistep",
+          "HeunDiscrete",
+          "KarrasDPM",
+          "K_EULER_ANCESTRAL",
+          "K_EULER",
+          "PNDM"
+        ],
+        "type": "string",
+        "description": "An enumeration."
+      },
+      "style": {
+        "title": "style",
+        "enum": [
+          "None",
+          "Cinematic",
+          "Photographic",
+          "Anime",
+          "Manga",
+          "Digital Art",
+          "Pixel Art",
+          "Fantasy Art",
+          "Neonpunk",
+          "3D Model"
+        ],
+        "type": "string",
+        "description": "An enumeration."
+      }
+    }
+  }
+}
